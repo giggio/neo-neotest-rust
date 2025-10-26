@@ -1,25 +1,31 @@
 local async = require("nio.tests")
-local plugin = require("neo-neotest-rust")
+local adapter = require("neo-neotest-rust.adapter")()
 local Tree = require("neotest.types").Tree
 
 describe("is_test_file", function()
     async.it("matches Rust files with tests in them", function()
-        assert.equals(true, plugin.is_test_file(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/foo.rs"))
+        assert.equals(true, adapter.is_test_file(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/foo.rs"))
     end)
 
     async.it("doesn't discover non-Rust files", function()
-        assert.equals(false, plugin.is_test_file(vim.loop.cwd() .. "/tests/data/simple-package/Cargo.toml"))
+        assert.equals(false, adapter.is_test_file(vim.loop.cwd() .. "/tests/data/simple-package/Cargo.toml"))
     end)
 
     async.it("doesn't discover Rust file without tests in it", function()
-        assert.equals(false, plugin.is_test_file(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/notests.rs"))
+        assert.equals(false, adapter.is_test_file(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/notests.rs"))
     end)
 end)
+
+-- describe("extra_args", function()
+--     async.it("doesn't discover non-Rust files", function()
+--         assert.equals(false, plugin.dap_extra_options(vim.loop.cwd() .. "/tests/data/simple-package/Cargo.toml"))
+--     end)
+-- end)
 
 describe("discover_positions", function()
     async.it("discovers positions in unit tests in main.rs", function()
         local positions =
-            plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/main.rs"):to_list()
+            adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/main.rs"):to_list()
 
         local expected_positions = {
             {
@@ -81,7 +87,7 @@ describe("discover_positions", function()
 
     async.it("discovers positions in unit tests in alt-bin.rs", function()
         local positions =
-            plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/bin/alt-bin.rs"):to_list()
+            adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/bin/alt-bin.rs"):to_list()
 
         local expected_positions = {
             {
@@ -115,7 +121,7 @@ describe("discover_positions", function()
     end)
 
     async.it("discovers positions in unit tests in lib.rs", function()
-        local positions = plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/lib.rs"):to_list()
+        local positions = adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/lib.rs"):to_list()
 
         local expected_positions = {
             {
@@ -159,7 +165,7 @@ describe("discover_positions", function()
 
     async.it("discovers positions in unit tests in mod.rs", function()
         local positions =
-            plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/mod.rs"):to_list()
+            adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/mod.rs"):to_list()
 
         local expected_positions = {
             {
@@ -194,7 +200,7 @@ describe("discover_positions", function()
 
     async.it("discovers positions in unit tests in a regular Rust file", function()
         local positions =
-            plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/foo.rs"):to_list()
+            adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/foo.rs"):to_list()
 
         local expected_positions = {
             {
@@ -229,7 +235,7 @@ describe("discover_positions", function()
 
     async.it("discovers positions in integration tests", function()
         local positions =
-            plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/tests/test_it.rs"):to_list()
+            adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/tests/test_it.rs"):to_list()
 
         local expected_positions = {
             {
@@ -291,7 +297,7 @@ describe("discover_positions", function()
 
     async.it("discovers positions in main.rs in a subdirectory of integration tests", function()
         local positions =
-            plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/tests/testsuite/main.rs"):to_list()
+            adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/tests/testsuite/main.rs"):to_list()
 
         local expected_positions = {
             {
@@ -317,7 +323,7 @@ describe("discover_positions", function()
 
     async.it("discovers positions in a test file in a subdirectory of integration tests", function()
         local positions =
-            plugin.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/tests/testsuite/it.rs"):to_list()
+            adapter.discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/tests/testsuite/it.rs"):to_list()
 
         local expected_positions = {
             {
@@ -342,7 +348,7 @@ describe("discover_positions", function()
     end)
 
     async.it("discovers positions when there are multiple macros present", function()
-        local positions = plugin
+        local positions = adapter
             .discover_positions(vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/multiple_macros.rs")
             :to_list()
 
@@ -389,7 +395,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^mymod::foo::tests::math$/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
         end)
@@ -403,7 +409,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^mymod::foo::/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
         end)
@@ -417,7 +423,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^tests::/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
         end)
@@ -431,7 +437,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.is.truthy(string.find(spec.command, "%-%-bin alt%-bin"))
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^tests::/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
@@ -446,7 +452,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^tests::/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
         end)
@@ -460,7 +466,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^mymod::/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
         end)
@@ -474,7 +480,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^other_mod::foo::/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
         end)
@@ -488,7 +494,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^top_level_math$/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
             assert.matches(".+ %-%-test test_it", spec.command)
@@ -503,7 +509,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, nil)
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
             assert.matches(".+ %-%-test test_it", spec.command)
@@ -518,7 +524,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^testsuite_top_level_math$/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
             assert.matches(".+ %-%-test testsuite ", spec.command)
@@ -533,7 +539,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, nil)
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
             assert.matches(".+ %-%-test testsuite$", spec.command)
@@ -548,7 +554,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^it::testsuite_it_math$/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
             assert.matches(".+ %-%-test testsuite ", spec.command)
@@ -563,14 +569,14 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("test(/^it::/)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
             assert.matches(".+ %-%-test testsuite ", spec.command)
         end)
 
         it("can add args for command", function()
-            local adapter = require("neo-neotest-rust")({
+            local adapter = require("neo-neotest-rust.adapter")({
                 args = {
                     "--no-capture",
                     "--test-threads",
@@ -603,7 +609,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(
                 spec.context.test_filter,
                 "-E " .. vim.fn.shellescape("package(with_integration_tests) & test(/^it_works$/)")
@@ -621,7 +627,7 @@ describe("build_spec", function()
                 return data
             end, {})
 
-            local spec = plugin.build_spec({ tree = tree })
+            local spec = adapter.build_spec({ tree = tree })
             assert.equal(spec.context.test_filter, "-E " .. vim.fn.shellescape("package(with_integration_tests)"))
             assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/workspace")
             assert.matches(".+ %-%-test it", spec.command)
@@ -637,7 +643,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree })
+                local spec = adapter.build_spec({ tree = tree })
                 assert.equal(
                     spec.context.test_filter,
                     "-E " .. vim.fn.shellescape("package(with_unit_tests) & test(/^test_it$/)")
@@ -654,7 +660,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree })
+                local spec = adapter.build_spec({ tree = tree })
                 assert.equal(
                     spec.context.test_filter,
                     "-E " .. vim.fn.shellescape("package(with_unit_tests) & test(/^tests::/)")
@@ -673,7 +679,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree })
+                local spec = adapter.build_spec({ tree = tree })
                 assert.equal(
                     spec.context.test_filter,
                     "-E " .. vim.fn.shellescape("package(some_other_name) & test(/^test_it$/)")
@@ -690,7 +696,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree })
+                local spec = adapter.build_spec({ tree = tree })
                 assert.equal(
                     spec.context.test_filter,
                     "-E " .. vim.fn.shellescape("package(some_other_name) & test(/^tests::/)")
@@ -711,7 +717,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "--exact",
@@ -729,12 +735,35 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "mymod::foo",
                 })
                 assert.equal(spec.cwd, vim.loop.cwd() .. "/tests/data/simple-package")
+            end)
+
+            async.it("with extra args", function()
+                local tree = Tree:new({
+                    type = "file",
+                    path = vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/foo.rs",
+                    id = vim.loop.cwd() .. "/tests/data/simple-package/src/mymod/foo.rs",
+                }, {}, function(data)
+                    return data
+                end, {})
+
+                local adapter = require("neo-neotest-rust.adapter")({
+                    args = {
+                        "--no-capture",
+                    },
+                    dap_extra_options = {
+                        foo = 1,
+                        bar = "baz",
+                    },
+                })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
+                assert.are.same(1, spec.strategy.foo)
+                assert.are.same("baz", spec.strategy.bar)
             end)
 
             async.it("can debug tests in main.rs", function()
@@ -746,7 +775,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "tests",
@@ -763,7 +792,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "tests",
@@ -780,7 +809,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "tests",
@@ -797,7 +826,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "mymod",
@@ -814,7 +843,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "other_mod::foo",
@@ -831,7 +860,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "--exact",
@@ -849,7 +878,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "tests",
@@ -866,7 +895,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "--exact",
@@ -884,7 +913,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "tests",
@@ -901,7 +930,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "--exact",
@@ -919,7 +948,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "it",
@@ -938,7 +967,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "--exact",
@@ -956,7 +985,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "tests",
@@ -973,7 +1002,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "--exact",
@@ -991,7 +1020,7 @@ describe("build_spec", function()
                     return data
                 end, {})
 
-                local spec = plugin.build_spec({ tree = tree, strategy = "dap" })
+                local spec = adapter.build_spec({ tree = tree, strategy = "dap" })
                 assert.are.same(spec.strategy.args, {
                     "--nocapture",
                     "tests",
@@ -1004,7 +1033,7 @@ end)
 
 describe("results", function()
     it("parses results with a single test suite in it", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/single_test_suite.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1031,7 +1060,7 @@ describe("results", function()
     end)
 
     it("parses results with no test suite in it", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/no_test_suite.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1044,7 +1073,7 @@ describe("results", function()
     end)
 
     it("parses results with empty system-out and system-err", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/test_failure_with_empty_stdout_stder.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1062,7 +1091,7 @@ describe("results", function()
     end)
 
     it("parses results with a multiple test suites in it", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/multiple_test_suites.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1092,7 +1121,7 @@ describe("results", function()
     end)
 
     it("parses raw results from result.output after debugging", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/does-not-exist.xml"
         local spec = { context = { junit_path = path, strategy = "dap" }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = vim.loop.cwd() .. "/tests/data/simple-package/1" }
@@ -1109,7 +1138,7 @@ describe("results", function()
     end)
 
     it("parses raw results from strategy.stdio after debugging with codelldb", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/does-not-exist.xml"
         local spec = {
             context = { junit_path = path, strategy = "dap" },
@@ -1144,7 +1173,7 @@ describe("results", function()
     end)
 
     it("returns the cargo-nextest output if there is no junit file", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local path = vim.loop.cwd() .. "/does-not-exist.xml"
         local position_id = "some_test"
         local spec = { context = { junit_path = path, position_id = position_id }, strategy = { stdio = nil } }
@@ -1165,14 +1194,14 @@ end)
 
 describe("filter_dir", function()
     it("doesn't exclude the src directory", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local root = vim.loop.cwd() .. "/tests/data/simple-package"
 
         assert.equals(adapter.filter_dir("src", "src", root), true)
     end)
 
     it("excludes the target directory", function()
-        local adapter = require("neo-neotest-rust")({})
+        local adapter = require("neo-neotest-rust.adapter")({})
         local root = vim.loop.cwd() .. "/tests/data/simple-package"
 
         assert.equals(adapter.filter_dir("target", "target", root), false)
