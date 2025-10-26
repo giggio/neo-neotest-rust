@@ -1,4 +1,4 @@
-local errors = require("neotest-rust.errors")
+local errors = require("neo-neotest-rust.errors")
 
 describe("parses errors from output", function()
     it("non-parsable errors in output", function()

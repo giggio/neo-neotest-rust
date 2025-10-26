@@ -1,5 +1,5 @@
 local async = require("nio.tests")
-local plugin = require("neotest-rust")
+local plugin = require("neo-neotest-rust")
 local Tree = require("neotest.types").Tree
 
 describe("is_test_file", function()
@@ -570,7 +570,7 @@ describe("build_spec", function()
         end)
 
         it("can add args for command", function()
-            local adapter = require("neotest-rust")({
+            local adapter = require("neo-neotest-rust")({
                 args = {
                     "--no-capture",
                     "--test-threads",
@@ -1004,7 +1004,7 @@ end)
 
 describe("results", function()
     it("parses results with a single test suite in it", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/single_test_suite.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1031,7 +1031,7 @@ describe("results", function()
     end)
 
     it("parses results with no test suite in it", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/no_test_suite.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1044,7 +1044,7 @@ describe("results", function()
     end)
 
     it("parses results with empty system-out and system-err", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/test_failure_with_empty_stdout_stder.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1062,7 +1062,7 @@ describe("results", function()
     end)
 
     it("parses results with a multiple test suites in it", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/multiple_test_suites.xml"
         local spec = { context = { junit_path = path }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = "/some/path" }
@@ -1092,7 +1092,7 @@ describe("results", function()
     end)
 
     it("parses raw results from result.output after debugging", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/does-not-exist.xml"
         local spec = { context = { junit_path = path, strategy = "dap" }, strategy = { stdio = nil } }
         local strategy_result = { code = 101, output = vim.loop.cwd() .. "/tests/data/simple-package/1" }
@@ -1109,7 +1109,7 @@ describe("results", function()
     end)
 
     it("parses raw results from strategy.stdio after debugging with codelldb", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local path = vim.loop.cwd() .. "/tests/data/simple-package/does-not-exist.xml"
         local spec = {
             context = { junit_path = path, strategy = "dap" },
@@ -1144,7 +1144,7 @@ describe("results", function()
     end)
 
     it("returns the cargo-nextest output if there is no junit file", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local path = vim.loop.cwd() .. "/does-not-exist.xml"
         local position_id = "some_test"
         local spec = { context = { junit_path = path, position_id = position_id }, strategy = { stdio = nil } }
@@ -1165,14 +1165,14 @@ end)
 
 describe("filter_dir", function()
     it("doesn't exclude the src directory", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local root = vim.loop.cwd() .. "/tests/data/simple-package"
 
         assert.equals(adapter.filter_dir("src", "src", root), true)
     end)
 
     it("excludes the target directory", function()
-        local adapter = require("neotest-rust")({})
+        local adapter = require("neo-neotest-rust")({})
         local root = vim.loop.cwd() .. "/tests/data/simple-package"
 
         assert.equals(adapter.filter_dir("target", "target", root), false)

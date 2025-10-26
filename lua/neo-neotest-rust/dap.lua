@@ -1,6 +1,6 @@
 local lib = require("neotest.lib")
 local sep = require("plenary.path").path.sep
-local util = require("neotest-rust.util")
+local util = require("neo-neotest-rust.util")
 
 local M = {}
 
@@ -9,9 +9,9 @@ local has_quantified_captures = vim.fn.has("nvim-0.11.0") == 1
 --
 --{
 --  "target": {
---    "src_path": "/home/mark/workspace/Lua/neotest-rust/tests/data/src/lib.rs",
+--    "src_path": "/home/mark/workspace/Lua/neo-neotest-rust/tests/data/src/lib.rs",
 --  },
---  "executable": "/home/mark/workspace/Lua/neotest-rust/tests/data/target/debug/deps/data-<>",
+--  "executable": "/home/mark/workspace/Lua/neo-neotest-rust/tests/data/target/debug/deps/data-<>",
 --}
 --
 -- Return a table containing each 'src_path' => 'executable' listed by

@@ -1,7 +1,9 @@
-# neotest-rust
+# neo-neotest-rust
 
 [Neotest](https://github.com/rcarriga/neotest) adapter for Rust, using
 [cargo-nextest](https://nexte.st/).
+
+Fork from [neotest-rust](https://github.com/rouge8/neotest-rust).
 
 Requires [nvim-treesitter](https://github.com/nvim-treesitter/nvim-treesitter)
 and the parser for Rust.
@@ -9,7 +11,7 @@ and the parser for Rust.
 ```lua
 require("neotest").setup({
   adapters = {
-    require("neotest-rust")
+    require("neo-neotest-rust")
   }
 })
 ```
@@ -20,7 +22,7 @@ you can specify the args when initializing the adapter.
 ```lua
 require("neotest").setup({
   adapters = {
-    require("neotest-rust") {
+    require("neo-neotest-rust") {
         args = { "--no-capture" },
     }
   }
@@ -39,7 +41,7 @@ Alternatives can be specified via the `dap_adapter` property during initializati
 ```lua
 require("neotest").setup({
   adapters = {
-    require("neotest-rust") {
+    require("neo-neotest-rust") {
         args = { "--no-capture" },
         dap_adapter = "lldb",
     }

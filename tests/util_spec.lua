@@ -1,5 +1,5 @@
 local async = require("nio.tests")
-local util = require("neotest-rust.util")
+local util = require("neo-neotest-rust.util")
 
 describe("file_exists", function()
     local cwd = vim.loop.cwd()

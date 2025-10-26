@@ -1,6 +1,6 @@
 local async = require("nio.tests")
 local strings = require("plenary.strings")
-local dap = require("neotest-rust.dap")
+local dap = require("neo-neotest-rust.dap")
 
 describe("get_test_binary", function()
     -- Binaries are created for src/lib.rs, src/main.rs, tests/test_it.rs, and

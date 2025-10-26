@@ -1,8 +1,8 @@
 local async = require("neotest.async")
 local context_manager = require("plenary.context_manager")
-local dap = require("neotest-rust.dap")
-local util = require("neotest-rust.util")
-local errors = require("neotest-rust.errors")
+local dap = require("neo-neotest-rust.dap")
+local util = require("neo-neotest-rust.util")
+local errors = require("neo-neotest-rust.errors")
 local Job = require("plenary.job")
 local open = context_manager.open
 local Path = require("plenary.path")
@@ -10,7 +10,7 @@ local lib = require("neotest.lib")
 local with = context_manager.with
 local xml = require("neotest.lib.xml")
 
-local adapter = { name = "neotest-rust" }
+local adapter = { name = "neo-neotest-rust" }
 
 local cargo_metadata = setmetatable({}, {
     __call = function(self, cwd)
